@@ -84,3 +84,40 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize app
   fetchActivities();
 });
+
+// Fetch and display activities with participants
+async function loadActivities() {
+  const response = await fetch('/activities');
+  const activities = await response.json();
+
+  const activitiesList = document.getElementById('activities-list');
+  const activityTemplate = document.getElementById('activity-template');
+
+  activitiesList.innerHTML = ''; // Clear loading message
+
+  for (const [name, details] of Object.entries(activities)) {
+    const activityElement = activityTemplate.content.cloneNode(true);
+
+    activityElement.querySelector('.activity-name').textContent = name;
+    activityElement.querySelector('.activity-description').textContent = details.description;
+    activityElement.querySelector('.activity-schedule').textContent = details.schedule;
+
+    const participantsList = activityElement.querySelector('.activity-participants');
+    if (details.participants.length > 0) {
+      details.participants.forEach(participant => {
+        const listItem = document.createElement('li');
+        listItem.textContent = participant;
+        participantsList.appendChild(listItem);
+      });
+    } else {
+      const noParticipants = document.createElement('li');
+      noParticipants.textContent = 'No participants yet';
+      participantsList.appendChild(noParticipants);
+    }
+
+    activitiesList.appendChild(activityElement);
+  }
+}
+
+// Call loadActivities on page load
+document.addEventListener('DOMContentLoaded', loadActivities);
